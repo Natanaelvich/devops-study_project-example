@@ -4,6 +4,22 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "environment" {
+  description = "Environment name (dev, staging, prod)"
+  type        = string
+  default     = "dev"
+  validation {
+    condition     = contains(["dev", "staging", "prod"], var.environment)
+    error_message = "Environment must be one of: dev, staging, prod"
+  }
+}
+
+variable "project_name" {
+  description = "Project name for resource naming"
+  type        = string
+  default     = "website"
+}
+
 variable "vpc_id" {
   description = "VPC ID where resources will be created"
   type        = string
@@ -56,17 +72,17 @@ variable "ecr_repository_name" {
 variable "security_group_name" {
   description = "Name of the security group"
   type        = string
-  default     = "website-sg"
+  default     = ""
 }
 
 variable "instance_name" {
   description = "Name tag for the EC2 instance"
   type        = string
-  default     = "website-server"
+  default     = ""
 }
 
 variable "iam_role_name" {
   description = "Name of the IAM role for EC2"
   type        = string
-  default     = "ECR-EC2-Role"
+  default     = ""
 }
