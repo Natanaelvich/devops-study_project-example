@@ -4,6 +4,10 @@
 # AWS Configuration
 aws_region = "us-east-1"
 
+# Environment and Project Configuration
+environment  = "dev"      # Options: dev, staging, prod
+project_name = "website"  # Used for resource naming prefix
+
 # VPC Configuration
 vpc_id = "vpc-xxxxxxxxx" # Replace with your VPC ID
 
@@ -22,7 +26,8 @@ terraform_state_key    = "site/terraform.tfstate"
 # ECR Configuration
 ecr_repository_name = "site_prod"
 
-# Optional: Override defaults
-security_group_name = "website-sg"
-instance_name       = "website-server"
-iam_role_name       = "ECR-EC2-Role"
+# Optional: Override auto-generated names
+# If not specified, names will be generated as: {environment}-{project_name}-{resource-type}
+security_group_name = ""  # Leave empty for auto-generation
+instance_name       = ""  # Leave empty for auto-generation
+iam_role_name       = ""  # Leave empty for auto-generation
