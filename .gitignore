@@ -35,3 +35,9 @@
 # Docker
 *.env
 .docker/
+
+# Sensitive files
+*.pem
+*.key
+*private*
+*secret*
