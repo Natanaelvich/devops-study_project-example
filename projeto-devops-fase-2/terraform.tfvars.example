@@ -1,0 +1,28 @@
+# Copy this file to terraform.tfvars and fill in your values
+# terraform.tfvars is ignored by git for security
+
+# AWS Configuration
+aws_region = "us-east-1"
+
+# VPC Configuration
+vpc_id = "vpc-xxxxxxxxx" # Replace with your VPC ID
+
+# Security Configuration
+ssh_allowed_ip = "0.0.0.0/0" # Replace with your IP in CIDR format (e.g., "200.106.133.23/32")
+key_pair_name  = "your-key-pair-name" # Replace with your AWS Key Pair name
+
+# Instance Configuration
+instance_type = "t2.micro"
+client_name   = "YourName" # Replace with your name or client name
+
+# Terraform State Backend Configuration
+terraform_state_bucket = "your-terraform-state-bucket" # Replace with your S3 bucket name
+terraform_state_key    = "site/terraform.tfstate"
+
+# ECR Configuration
+ecr_repository_name = "site_prod"
+
+# Optional: Override defaults
+security_group_name = "website-sg"
+instance_name       = "website-server"
+iam_role_name       = "ECR-EC2-Role"

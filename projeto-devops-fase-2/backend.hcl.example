@@ -1,0 +1,12 @@
+# Backend configuration example
+# Use this file to configure the S3 backend for Terraform state
+# 
+# Usage:
+# terraform init -backend-config=backend.hcl
+#
+# Or rename this file to backend.hcl and configure your values
+
+bucket  = "your-terraform-state-bucket"
+key     = "site/terraform.tfstate"
+region  = "us-east-1"
+encrypt = true
