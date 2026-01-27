@@ -2,6 +2,7 @@ version: '1.0'
 
 services:
   web:
+    image: projeto-devops-fase-1-web:latest
     build:
       context: .
       dockerfile: Dockerfile
