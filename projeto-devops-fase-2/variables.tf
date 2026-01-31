@@ -26,6 +26,18 @@ variable "vpc_id" {
   sensitive   = true
 }
 
+variable "subnet_id" {
+  description = "Subnet ID to launch the EC2 instance in (optional; for custom VPCs)"
+  type        = string
+  default     = null
+}
+
+variable "associate_public_ip_address" {
+  description = "Whether to associate a public IP with the EC2 instance (optional; for custom VPCs)"
+  type        = bool
+  default     = null
+}
+
 variable "ssh_allowed_ip" {
   description = "IP address allowed to SSH into the EC2 instance (CIDR format)"
   type        = string
@@ -67,6 +79,12 @@ variable "ecr_repository_name" {
   description = "Name of the ECR repository"
   type        = string
   default     = "site_prod"
+}
+
+variable "ecr_image_tag" {
+  description = "Docker image tag to pull and run on EC2 (used by user_data bootstrap script)"
+  type        = string
+  default     = "latest"
 }
 
 variable "security_group_name" {

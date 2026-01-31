@@ -10,6 +10,8 @@ project_name = "website"  # Used for resource naming prefix
 
 # VPC Configuration
 vpc_id = "vpc-xxxxxxxxx" # Replace with your VPC ID
+# subnet_id                  = null   # Optional: subnet for EC2 (for custom VPCs)
+# associate_public_ip_address = null   # Optional: true/false for public IP (for custom VPCs)
 
 # Security Configuration
 ssh_allowed_ip = "0.0.0.0/0" # Replace with your IP in CIDR format (e.g., "200.106.133.23/32")
@@ -25,6 +27,7 @@ terraform_state_key    = "site/terraform.tfstate"
 
 # ECR Configuration
 ecr_repository_name = "site_prod"
+ecr_image_tag       = "latest"   # Tag used by EC2 user_data to pull and run the container
 
 # Optional: Override auto-generated names
 # If not specified, names will be generated as: {environment}-{project_name}-{resource-type}
