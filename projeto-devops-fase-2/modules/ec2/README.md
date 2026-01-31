@@ -32,8 +32,11 @@ module "ec2" {
 | `ami_id` | ID da AMI para a instância | `string` | - | Sim |
 | `instance_type` | Tipo de instância EC2 | `string` | `"t2.micro"` | Não |
 | `key_pair_name` | Nome da AWS Key Pair para acesso SSH | `string` | - | Sim |
+| `subnet_id` | Subnet ID para lançar a instância (opcional) | `string` | `null` | Não |
+| `associate_public_ip_address` | Associar IP público à instância (opcional) | `bool` | `null` | Não |
 | `security_group_ids` | Lista de IDs de security groups | `list(string)` | - | Sim |
 | `iam_instance_profile_name` | Nome do IAM instance profile (opcional) | `string` | `null` | Não |
+| `user_data` | Script de user_data (ex.: Docker + ECR pull/run) | `string` | `null` | Não |
 | `tags` | Tags para aplicar aos recursos | `map(string)` | `{}` | Não |
 
 ## Outputs
