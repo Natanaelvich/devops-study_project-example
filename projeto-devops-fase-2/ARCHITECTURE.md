@@ -31,9 +31,12 @@ projeto-devops-fase-2/
 ├── data.tf                        # Data sources
 ├── provider.tf                    # Configuração do provider AWS
 ├── backend.tf                     # Configuração do backend (S3)
+├── templates/                     # Templates para user_data
+│   └── ec2-userdata.sh            # Bootstrap: Docker + ECR pull/run com retry
 ├── terraform.tfvars.example       # Template de variáveis
 ├── backend.hcl.example            # Template de backend config
 ├── VARIABLES.md                   # Documentação de variáveis
+├── README.md                      # Uso e fluxo pós-apply
 └── ARCHITECTURE.md                # Este arquivo
 ```
 
@@ -67,10 +70,10 @@ Cria security group com regras de ingress e egress configuráveis.
 - `security_group_name` - Nome do security group
 
 ### Módulo EC2 (`modules/ec2/`)
-Cria instâncias EC2 com configurações personalizáveis.
+Cria instâncias EC2 com configurações personalizáveis e `user_data` opcional para bootstrap (ex.: instalar Docker e rodar container do ECR com retry).
 
 **Recursos:**
-- `aws_instance` - Instância EC2
+- `aws_instance` - Instância EC2 (com `user_data` e `user_data_replace_on_change`)
 
 **Outputs:**
 - `instance_id` - ID da instância
@@ -130,12 +133,13 @@ main.tf
     ├──→ module.security_group
     │       └──→ Security Group + Rules
     │
-    ├──→ module.ec2
-    │       ├──→ Uses: module.iam.instance_profile_name
-    │       └──→ Uses: module.security_group.security_group_id
+    ├──→ module.ecr
+    │       └──→ ECR Repository
     │
-    └──→ module.ecr
-            └──→ ECR Repository
+    └──→ module.ec2
+            ├──→ Uses: module.iam.instance_profile_name
+            ├──→ Uses: module.security_group.security_group_id
+            └──→ Uses: module.ecr.repository_url (user_data: Docker + pull/run com retry)
 ```
 
 ## 🌍 Suporte a Múltiplos Ambientes
