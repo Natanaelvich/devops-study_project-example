@@ -180,6 +180,11 @@ No terminal, na raiz do projeto, execute:
 docker build -t meu-website:v1.0 .
 ```
 
+> ⚠️ **Mac com Apple Silicon (M1/M2/M3)**: Adicione `--platform linux/amd64` para deploy na EC2:
+> ```bash
+> docker build --platform linux/amd64 -t meu-website:v1.0 .
+> ```
+
 #### 🎓 Entendendo o comando:
 - **docker build**: Comando para construir uma imagem
 - **-t meu-website:v1.0**: Tag (nome:versão) da imagem
@@ -196,7 +201,7 @@ Você verá a saída do processo de build:
  => [2/3] RUN rm -rf /usr/share/nginx/html/*
  => [3/3] COPY website/ /usr/share/nginx/html/
  => exporting to image
- => naming to docker.io/library/meu-website:v1.0
+ => naming to docker.io/library
 ```
 
 *[Espaço para print: Processo de build do Docker]*
@@ -307,7 +312,7 @@ docker rm meu-website-container
 
 Após criar, você verá algo como:
 ```
-123456789012.dkr.ecr.us-east-1.amazonaws.com/meu-website
+867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest/meu-website
 ```
 
 ⚠️ **Importante**: Copie e guarde esta URI, você precisará dela!
@@ -334,7 +339,7 @@ Você precisará fornecer:
 ### Passo 5.2: Autenticar Docker com ECR
 
 ```bash
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest
 ```
 
 ⚠️ **Substitua**: 
@@ -351,18 +356,24 @@ Login Succeeded
 ### Passo 5.3: Tagar a imagem para o ECR
 
 ```bash
-docker tag meu-website:v1.0 123456789012.dkr.ecr.us-east-1.amazonaws.com/meu-website:v1.0
+docker tag meu-website:v1.0 867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest
 ```
+
+> ⚠️ **Mac com Apple Silicon (M1/M2/M3)**: A EC2 usa x86_64 (amd64). Construa para a plataforma correta para evitar `exec format error`:
+> ```bash
+> docker build --platform linux/amd64 -t meu-website:v1.0 .
+> ```
+> Ou use o script: `./.scripts/push-ecr.sh` (já faz o build correto).
 
 ### Passo 5.4: Push da imagem
 
 ```bash
-docker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/meu-website:v1.0
+docker push 867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest
 ```
 
 Você verá o progresso do upload:
 ```
-The push refers to repository [123456789012.dkr.ecr.us-east-1.amazonaws.com/meu-website]
+The push refers to repository [867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest/meu-website]
 abc123: Pushed
 def456: Pushed
 v1.0: digest: sha256:xyz789... size: 1234
@@ -407,7 +418,7 @@ v1.0: digest: sha256:xyz789... size: 1234
 
 #### Par de chaves
 - Clique em "Create new key pair"
-- **Key pair name**: `meu-website-key`
+- **Key pair name**: `chave-site-prod`
 - **Key pair type**: RSA
 - **Private key file format**: .pem (Linux/Mac) ou .ppk (Windows/PuTTY)
 - Clique em "Create key pair" e salve o arquivo
@@ -476,10 +487,10 @@ Anote:
 #### No Linux/Mac:
 ```bash
 # Ajustar permissões da chave
-chmod 400 meu-website-key.pem
+chmod 400 chave-site-prod.pem
 
 # Conectar via SSH
-ssh -i meu-website-key.pem ec2-user@54.123.45.67
+ssh -i chave-site-prod.pem ec2-user@54.123.45.67
 ```
 
 #### No Windows (usando PuTTY):
@@ -532,27 +543,29 @@ docker --version
 exit
 
 # Conectar novamente
-ssh -i meu-website-key.pem ec2-user@54.123.45.67
+ssh -i chave-site-prod.pem ec2-user@54.123.45.67
 ```
 
 ### Passo 7.4: Autenticar Docker com ECR na EC2
 
 ```bash
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest
 ```
 
 *[Espaço para print: Login ECR na EC2]*
 
 ### Passo 7.5: Pull da imagem do ECR
 
+> ⚠️ **Se aparecer `exec format error` nos logs**: A imagem foi construída em Mac ARM. Veja [Problema 5](#problema-5-exec-docker-entrypointsh-exec-format-error-na-ec2) na seção Troubleshooting.
+
 ```bash
-docker pull 123456789012.dkr.ecr.us-east-1.amazonaws.com/meu-website:v1.0
+docker pull 867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest
 ```
 
 Você verá:
 ```
 v1.0: Pulling from meu-website
-Status: Downloaded newer image for 123456789012.dkr.ecr.us-east-1.amazonaws.com/meu-website:v1.0
+Status: Downloaded newer image for 867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest
 ```
 
 *[Espaço para print: Pull concluído]*
@@ -560,7 +573,7 @@ Status: Downloaded newer image for 123456789012.dkr.ecr.us-east-1.amazonaws.com/
 ### Passo 7.6: Executar o container
 
 ```bash
-docker run -d -p 80:80 --name meu-website-prod --restart always 123456789012.dkr.ecr.us-east-1.amazonaws.com/meu-website:v1.0
+docker run -d -p 80:80 --name site-prod --restart always 867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest
 ```
 
 #### 🎓 Parâmetros importantes:
@@ -574,7 +587,7 @@ docker run -d -p 80:80 --name meu-website-prod --restart always 123456789012.dkr
 docker ps
 
 # Verificar logs
-docker logs meu-website-prod
+docker logs site-prod
 ```
 
 *[Espaço para print: Container rodando na EC2]*
@@ -595,23 +608,23 @@ docker logs meu-website-prod
 
 ```bash
 # Logs do container
-docker logs -f meu-website-prod
+docker logs -f site-prod
 
 # Status do container
-docker stats meu-website-prod
+docker stats site-prod
 ```
 
 ### Teste 3: Testar reinicialização
 
 ```bash
 # Parar o container
-docker stop meu-website-prod
+docker stop site-prod
 
 # Verificar se parou
 docker ps
 
 # Iniciar novamente
-docker start meu-website-prod
+docker start site-prod
 
 # Verificar se voltou
 docker ps
@@ -657,6 +670,26 @@ exit
 ssh -i key.pem ec2-user@IP
 ```
 
+### Problema 5: "exec /docker-entrypoint.sh: exec format error" na EC2
+
+**Causa**: A imagem foi construída em Mac com Apple Silicon (ARM64) e a EC2 usa x86_64 (amd64).
+
+**Solução**: Reconstruir e enviar a imagem para a plataforma correta:
+```bash
+# No seu Mac, reconstruir para linux/amd64 e fazer push
+cd projeto-devops-fase-1
+docker compose build --platform linux/amd64
+./.scripts/push-ecr.sh us-east-1
+```
+
+Na EC2, baixar e executar novamente:
+```bash
+docker stop site-prod
+docker rm site-prod
+docker pull 867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest
+docker run -d --name site-prod -p 80:80 --restart unless-stopped 867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest
+```
+
 ---
 
 ## 🧹 Limpeza de Recursos
@@ -666,9 +699,9 @@ ssh -i key.pem ec2-user@IP
 ### Passo 1: Parar e remover container na EC2
 
 ```bash
-docker stop meu-website-prod
-docker rm meu-website-prod
-docker rmi 123456789012.dkr.ecr.us-east-1.amazonaws.com/meu-website:v1.0
+docker stop site-prod
+docker rm site-prod
+docker rmi 867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest
 ```
 
 ### Passo 2: Terminar instância EC2
