@@ -1,9 +1,19 @@
 #!/usr/bin/env bash
 # Push da imagem projeto-devops-fase-1-web:latest para AWS ECR (repositório site_prod)
-# Uso: ./push-ecr.sh [região]
-# Ex.: ./push-ecr.sh us-east-1
+# Uso: .scripts/push-ecr.sh [região]
+# Ex.: .scripts/push-ecr.sh us-east-1
 
 set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_ROOT"
+if [[ -f "$PROJECT_ROOT/.env" ]]; then
+  set -a
+  # shellcheck source=/dev/null
+  source "$PROJECT_ROOT/.env"
+  set +a
+fi
 
 IMAGE_NAME="projeto-devops-fase-1-web"
 IMAGE_TAG="latest"
@@ -30,11 +40,9 @@ if ! aws ecr describe-repositories --repository-names "${ECR_REPO_NAME}" --regio
 fi
 echo "Repositório ECR: ${ECR_REPO_NAME}"
 
-# Garantir que a imagem existe localmente
-if ! docker image inspect "${IMAGE_NAME}:${IMAGE_TAG}" &>/dev/null; then
-  echo "Imagem ${IMAGE_NAME}:${IMAGE_TAG} não encontrada. Construindo..."
-  docker compose build
-fi
+# Build para linux/amd64 (EC2 usa x86_64 - evita "exec format error" em Mac ARM)
+echo "Construindo imagem para linux/amd64 (EC2)..."
+docker build --platform linux/amd64 -t "${IMAGE_NAME}:${IMAGE_TAG}" -f Dockerfile .
 
 # Login no ECR
 echo "Autenticando no ECR..."
