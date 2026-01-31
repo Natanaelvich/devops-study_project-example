@@ -407,7 +407,7 @@ v1.0: digest: sha256:xyz789... size: 1234
 - **Name**: `meu-website-server`
 
 #### Imagem de aplicação e sistema operacional
-- **AMI**: Amazon Linux 2023 (Free tier eligible)
+- **AMI**: Amazon Linux 2 (Free tier eligible)
 
 *[Espaço para print: Seleção da AMI]*
 
@@ -500,7 +500,7 @@ ssh -i chave-site-prod.pem ec2-user@54.123.45.67
 Você verá:
 ```
    ,     #_
-   ~\_  ####_        Amazon Linux 2023
+   ~\_  ####_        Amazon Linux 2
   ~~  \_#####\
   ~~     \###|
   ~~       \#/ ___   https://aws.amazon.com/linux/amazon-linux-2023
@@ -760,8 +760,8 @@ docker rmi 867118092958.dkr.ecr.us-east-1.amazonaws.com/site_prod:latest
 
 Após completar este laboratório, você está pronto para:
 
-1. **Projeto 2**: Automatizar este processo com CI/CD
-2. **Projeto 3**: Usar Terraform para Infrastructure as Code
+1. **Fase 2 (Terraform)**: Provisionar a mesma infraestrutura (ECR, EC2, Security Group, IAM) e o deploy automático do container na EC2 via `user_data`. Veja [projeto-devops-fase-2/README.md](../projeto-devops-fase-2/README.md) para o fluxo após `terraform apply` (configurar `.env`, push da imagem com `./.scripts/push-ecr.sh`, acessar o site).
+2. **CI/CD**: Automatizar build e push com pipelines (ex.: GitHub Actions).
 3. **Explorar**: Docker Compose, Kubernetes, ECS/Fargate
 
 ---
